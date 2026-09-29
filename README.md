@@ -15,7 +15,7 @@
 
 Deepslate is a distributed server architecture designed to address the historical single-threaded bottleneck in Minecraft.
 
-Built on a **custom Paper fork (`ver/1.21.11` branch)** and a **high-performance network gateway**, it achieves **vertical scaling** by distributing the simulation of a single continuous world across multiple independent server processes utilizing the CPU cores of a single host, while preserving an uninterrupted and seamless player session.
+Built on a custom Paper fork (branch `ver/1.21.11`) and a high-performance network gateway, it achieves **vertical scaling** by distributing the simulation of a single continuous world across multiple independent server processes utilizing the CPU cores of a single host, while preserving an uninterrupted and seamless player session.
 
 ## Vertical Scaling
 
@@ -52,10 +52,10 @@ Decoupling player connections, the network gateway, and simulation processes unl
   Even when players are simulated on different backend nodes, they inhabit the exact same visual space without phasing or instancing. Through a synchronized replica system, players see each other, observe real-time movements, head rotations, arm swing animations, and engage in natural combat seamlessly.
 
 * **Zero-Kick Plugin Updates & Live Maintenance**:  
-  Each cluster node runs on our Paper fork and can maintain an asymmetric plugin configuration. In this demonstration, **Node 1 is completely vanilla** (`Plugins: 0`), while **Node 2 runs FastAsyncWorldEdit** (`Plugins: 1`). This proves plugins can be loaded, updated, or reloaded node-by-node during live gameplay without shutting down the server or kicking active players.
+  Each cluster node runs on our Paper fork and can maintain an asymmetric plugin configuration. In this demonstration, Node 1 is completely vanilla (0 plugins), while Node 2 runs FastAsyncWorldEdit (1 plugin). This proves plugins can be loaded, updated, or reloaded node-by-node during live gameplay without shutting down the server or kicking active players.
 
 * **Crash Resilience & Failover with Zero Rollbacks**:  
-  If an active node crashes or is intentionally stopped (`/stop`), the network gateway absorbs the socket disconnection and transparently migrates the player session to a healthy node in milliseconds. Because world and player states reside in a shared memory layer independent of individual server lifecycles, players experience **no disconnect screen, no lost progress, and zero rollback**.
+  If an active node crashes or is intentionally stopped via `/stop`, the network gateway absorbs the socket disconnection and transparently migrates the player session to a healthy node in milliseconds. Because world and player states reside in a shared memory layer independent of individual server lifecycles, players experience **no disconnect screen, no lost progress, and zero rollback**.
 
 * **Full Shared World & Redstone Consistency**:  
   Blocks, inventories, redstone clocks, and scheduled block ticks remain continuously synchronized across nodes. Large-scale terrain modifications affecting thousands of blocks on one node are immediately persistent and intact when transitioning to a vanilla node.
@@ -85,17 +85,17 @@ The video below validates these architectural concepts on a live Deepslate clust
   </a>
 </p>
 
-### Key Milestones in the Demonstration:
+### Key Milestones in the Demonstration
 
 * **Continuous Flight Switching (Chaos Mode)**: The player flies through newly generating chunks while an automated stress test triggers **13 consecutive handovers in 60 seconds** between `core-1` and `core-2`. The on-screen HUD displays active node switching in real time without stuttering, rubberbanding, or chunk reloading.
 
-* **Abrupt Node Shutdown (`/stop`) Without Disconnection**: The player executes `/stop` on the active node while mid-air. The gateway immediately reroutes traffic to the secondary node without interrupting flight. Once the initial node is restarted, it dynamically rejoins the live cluster.
+* **Abrupt Node Shutdown Without Disconnection**: The player executes `/stop` on the active node while mid-air. The gateway immediately reroutes traffic to the secondary node without interrupting flight. Once the initial node is restarted, it dynamically rejoins the live cluster.
 
 * **Plugin Asymmetry & Terrain Persistence Verification**:
-  1. Checking `/plugins`: `core-1` reports **0 plugins**, while `core-2` reports **1 plugin** (FastAsyncWorldEdit).
-  2. On `core-2`, a mountainous area is selected and **4,536 blocks** are instantly deleted using `//set 0`.
-  3. `core-2` is shut down via `/stop`.
-  4. Upon migration to `core-1` (which has zero plugins), the 4,536-block crater remains 100% persistent and synchronized.
+  * **Node Isolation**: `core-1` runs vanilla with 0 plugins, while `core-2` runs FastAsyncWorldEdit (1 plugin).
+  * **Terrain Carving**: On `core-2`, a mountainous area of **4,536 blocks** is deleted using `//set 0`.
+  * **Emergency Shutdown**: `core-2` is terminated with `/stop`.
+  * **World Persistence**: Migrated to `core-1` (zero plugins), the 4,536-block crater remains 100% persistent and synchronized.
 
 > [!NOTE]
 > **100% Vanilla Client**: This demonstration was captured using an unmodified, official Minecraft client. The cluster diagnostic telemetry displayed at the top of the screen is rendered server-side via the player list header (Tablist).
